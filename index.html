@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity Timer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="mb-0">Activity Timer</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="activity" class="form-label">Activity Name</label>
+                            <input type="text" class="form-control" id="activity" value="Walk">
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button id="startButton" class="btn btn-success">Start Timing</button>
+                            <button id="stopButton" class="btn btn-danger" disabled>Stop Timing</button>
+                        </div>
+
+                        <div class="mt-4">
+                            <h4>Result:</h4>
+                            <div id="result" class="alert alert-info d-none"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSessionId = null;
+        const startButton = document.getElementById('startButton');
+        const stopButton = document.getElementById('stopButton');
+        const activityInput = document.getElementById('activity');
+        const resultDiv = document.getElementById('result');
+
+        startButton.addEventListener('click', async () => {
+            const activity = activityInput.value.trim() || 'Walk';
+            const response = await fetch('/api/start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ activity })
+            });
+            const data = await response.json();
+            if (data.status === 'success') {
+                currentSessionId = data.session_id;
+                startButton.disabled = true;
+                stopButton.disabled = false;
+                resultDiv.textContent = 'Timing started...';
+                resultDiv.classList.remove('d-none', 'alert-danger');
+                resultDiv.classList.add('alert-info');
+            }
+        });
+
+        stopButton.addEventListener('click', async () => {
+            if (!currentSessionId) return;
+            const response = await fetch('/api/stop', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ session_id: currentSessionId })
+            });
+            const data = await response.json();
+            if (data.status === 'success') {
+                resultDiv.textContent = data.formatted_text;
+                resultDiv.classList.remove('d-none', 'alert-danger');
+                resultDiv.classList.add('alert-info');
+                startButton.disabled = false;
+                stopButton.disabled = true;
+                currentSessionId = null;
+            }
+        });
+    </script>
+</body>
+</html>
