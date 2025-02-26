@@ -90,5 +90,6 @@ def stop_timing():
         return jsonify({'status': 'error', 'message': 'Failed to stop timing'}), 500
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    # Use the port assigned by Render dynamically
+    port = int(os.getenv("PORT", "5000"))
+    app.run(host="0.0.0.0", port=port)
