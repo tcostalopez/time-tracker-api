@@ -33,8 +33,12 @@ def before_request():
 
 @app.route('/')
 def index():
-    """Force HTML response"""
-    return render_template("index.html"), 200, {'Content-Type': 'text/html'}
+    """Debug Flask Template Rendering"""
+    try:
+        return render_template("index.html"), 200, {'Content-Type': 'text/html'}
+    except Exception as e:
+        logger.error(f"Error rendering index.html: {str(e)}")
+        return f"Error: {str(e)}", 500  # Show error in the browser if template rendering fails
 
 @app.route('/api/start', methods=['POST'])
 def start_timing():
