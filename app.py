@@ -33,8 +33,8 @@ def before_request():
 
 @app.route('/')
 def index():
-    """Render the web interface"""
-    return render_template('index.html')
+    """Force HTML response"""
+    return render_template("index.html"), 200, {'Content-Type': 'text/html'}
 
 @app.route('/api/start', methods=['POST'])
 def start_timing():
