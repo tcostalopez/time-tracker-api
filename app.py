@@ -3,6 +3,7 @@ from datetime import datetime
 import logging
 import os
 import json
+import requests  # ✅ Correctly import requests at the top
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -92,6 +93,26 @@ def stop_timing():
     except Exception as e:
         logger.error(f"Error stopping session: {str(e)}")
         return jsonify({'status': 'error', 'message': 'Failed to stop timing'}), 500
+
+@app.route('/ping/start', methods=['GET'])
+def ping_start():
+    """UptimeRobot GET route to trigger /api/start"""
+    try:
+        # Internally send a POST request to /api/start
+        response = requests.post("https://time-tracker-api-laiz.onrender.com/api/start", json={"activity": "UptimeRobot Keep Alive"})
+        return jsonify(response.json()), response.status_code
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route('/ping/stop', methods=['GET'])
+def ping_stop():
+    """UptimeRobot GET route to trigger /api/stop"""
+    try:
+        # Internally send a POST request to /api/stop
+        response = requests.post("https://time-tracker-api-laiz.onrender.com/api/stop", json={"session_id": "UptimeRobotSession"})
+        return jsonify(response.json()), response.status_code
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == '__main__':
     # Use the port assigned by Render dynamically
